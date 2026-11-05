@@ -112,6 +112,11 @@ std::vector<const Worker*> selectByMinExperience(const WorkerList& workers,
 /// Вывод сотрудника в поток (эквивалент print).
 std::ostream& operator<<(std::ostream& os, const Worker& worker);
 
+/// Демонстрационный набор сотрудников: должности соответствуют штатному
+/// расписанию профильного подразделения вуза (преподаватели и ИТ-специалисты).
+/// Используется консольным приложением и веб-сервером.
+WorkerList makeDemoWorkers();
+
 /// Сравнение сотрудников по всем полям.
 bool operator==(const Worker& lhs, const Worker& rhs) noexcept;
 bool operator!=(const Worker& lhs, const Worker& rhs) noexcept;

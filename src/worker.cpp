@@ -237,6 +237,18 @@ std::ostream& operator<<(std::ostream& os, const Worker& worker) {
     return os;
 }
 
+WorkerList makeDemoWorkers() {
+    WorkerList workers;
+    workers.push_back(Worker("Смирнов Д.А.", "Заведующий кафедрой", 180000.0, 2015));
+    workers.push_back(Worker("Петрова А.С.", "Доцент", 120000.0, 2017));
+    workers.push_back(Worker("Иванов И.И.", "Старший преподаватель", 95000.0, 2021));
+    workers.push_back(
+        Worker("Кузнецова Е.В.", "Инженер-программист", 110000.0, 2023));
+    workers.push_back(Worker("Сидоров П.П.", "Специалист технической поддержки",
+                             70000.0, 2025));
+    return workers;
+}
+
 bool operator==(const Worker& lhs, const Worker& rhs) noexcept {
     return lhs.fullName() == rhs.fullName() && lhs.position() == rhs.position() &&
            lhs.salary() == rhs.salary() && lhs.hireYear() == rhs.hireYear();

@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Учёт сотрудников — WORKER</title>
+<style>
+  :root {
+    --bg: #f2f4f8;
+    --card: #ffffff;
+    --ink: #1c2430;
+    --muted: #6b7684;
+    --line: #e2e7ef;
+    --accent: #d81f31;
+    --accent-soft: #fdecee;
+    --ok: #12805c;
+    --shadow: 0 1px 2px rgba(20, 30, 50, .06), 0 8px 24px rgba(20, 30, 50, .06);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 32px 20px 56px;
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.5 -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .wrap { max-width: 1120px; margin: 0 auto; }
+
+  header { margin-bottom: 24px; }
+
+  h1 {
+    margin: 0 0 6px;
+    font-size: 26px;
+    letter-spacing: -.4px;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .sub { color: var(--muted); font-size: 13.5px; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 330px 1fr;
+    gap: 18px;
+    align-items: start;
+  }
+
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 18px;
+  }
+
+  .card h2 {
+    margin: 0 0 14px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: .2px;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 12px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  input {
+    display: block;
+    width: 100%;
+    margin-top: 5px;
+    padding: 9px 11px;
+    font: inherit;
+    font-weight: 400;
+    color: var(--ink);
+    background: #fbfcfe;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+
+  input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(216, 31, 49, .12);
+    background: #fff;
+  }
+
+  button {
+    font: inherit;
+    font-weight: 600;
+    border-radius: 9px;
+    border: 1px solid transparent;
+    padding: 9px 14px;
+    cursor: pointer;
+    transition: background .15s, border-color .15s, color .15s;
+  }
+
+  button:active { transform: translateY(1px); }
+
+  .btn-primary { background: var(--accent); color: #fff; width: 100%; }
+  .btn-primary:hover { background: #bd1a2b; }
+
+  .btn-ghost {
+    background: #fff;
+    color: var(--ink);
+    border-color: var(--line);
+  }
+
+  .btn-ghost:hover { border-color: #c9d1dd; background: #f7f9fc; }
+
+  .row { display: flex; gap: 8px; margin-top: 10px; }
+
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .toolbar .threshold {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .toolbar input {
+    width: 74px;
+    margin: 0;
+    text-align: center;
+    padding: 7px 8px;
+  }
+
+  .spacer { flex: 1; }
+
+  .summary {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 11px 14px;
+    margin-bottom: 12px;
+    background: var(--accent-soft);
+    border: 1px solid #f6d3d7;
+    border-radius: 10px;
+    font-size: 13.5px;
+  }
+
+  .summary b { font-size: 17px; color: var(--accent); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+
+  th {
+    text-align: left;
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--muted);
+    font-weight: 600;
+    padding: 0 10px 8px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 9px 10px;
+    border-bottom: 1px solid #eef1f6;
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+
+  tbody tr.hit { background: #fff7f8; }
+
+  tbody tr.hit td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
+
+  td.num, th.num { text-align: right; white-space: nowrap; }
+
+  .badge {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    background: #eef1f6;
+    color: var(--muted);
+  }
+
+  .badge.hit { background: var(--accent-soft); color: var(--accent); }
+
+  .del {
+    border: none;
+    background: none;
+    color: #a6afbc;
+    font-size: 16px;
+    line-height: 1;
+    padding: 4px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .del:hover { color: var(--accent); background: var(--accent-soft); }
+
+  .empty {
+    padding: 28px 10px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13.5px;
+  }
+
+  footer {
+    margin-top: 22px;
+    color: var(--muted);
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 26px;
+    transform: translateX(-50%) translateY(20px);
+    max-width: 90vw;
+    padding: 11px 16px;
+    border-radius: 10px;
+    background: #222b38;
+    color: #fff;
+    font-size: 13.5px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+  }
+
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Учёт сотрудников <span>·</span> класс WORKER</h1>
+    <div class="sub">Производственная практика · 02.03.03 · профиль «Разработка ПО (Full-stack разработка)» · Лайшев Марат Хасанович</div>
+  </header>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Добавить сотрудника</h2>
+      <form id="form" autocomplete="off">
+        <label>Фамилия и инициалы
+          <input id="name" placeholder="Иванов И.И." required>
+        </label>
+        <label>Должность
+          <input id="position" list="positions" placeholder="Доцент" required>
+        </label>
+        <datalist id="positions">
+          <option value="Заведующий кафедрой">
+          <option value="Доцент">
+          <option value="Старший преподаватель">
+          <option value="Инженер-программист">
+          <option value="Специалист технической поддержки">
+        </datalist>
+        <label>Оклад, руб.
+          <input id="salary" type="number" min="0" step="0.01" placeholder="120000" required>
+        </label>
+        <label>Год поступления на работу
+          <input id="hireYear" type="number" min="1900" step="1" required>
+        </label>
+        <button class="btn-primary" type="submit">Добавить</button>
+      </form>
+      <div class="row">
+        <button class="btn-ghost" id="demo" style="flex:1">Демо-набор</button>
+        <button class="btn-ghost" id="clear" style="flex:1">Очистить</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="toolbar">
+        <div class="threshold">
+          Стаж более
+          <input id="min" type="number" min="0" step="1" value="3">
+          лет
+        </div>
+        <div class="spacer"></div>
+        <span class="sub" id="yearLabel"></span>
+      </div>
+
+      <div class="summary" id="summary"></div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ФИО</th>
+            <th>Должность</th>
+            <th class="num">Оклад, ₽</th>
+            <th class="num">Год</th>
+            <th class="num">Стаж</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </section>
+  </div>
+
+  <footer>Стаж считается на текущий год. В выборку попадают сотрудники, чей стаж строго больше порога.</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const els = {
+  form: document.getElementById('form'),
+  name: document.getElementById('name'),
+  position: document.getElementById('position'),
+  salary: document.getElementById('salary'),
+  hireYear: document.getElementById('hireYear'),
+  min: document.getElementById('min'),
+  rows: document.getElementById('rows'),
+  summary: document.getElementById('summary'),
+  yearLabel: document.getElementById('yearLabel'),
+  toast: document.getElementById('toast')
+};
+
+let toastTimer = null;
+
+function toast(message) {
+  els.toast.textContent = message;
+  els.toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => els.toast.classList.remove('show'), 3200);
+}
+
+function esc(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// После слова «более» нужен родительный падеж: «более 1 года», «более 3 лет».
+function limitWord(n) {
+  const lastTwo = n % 100;
+  const last = n % 10;
+  if (lastTwo >= 11 && lastTwo <= 14) return 'лет';
+  return last === 1 ? 'года' : 'лет';
+}
+
+async function call(url, data) {
+  const options = data === undefined
+    ? { method: 'GET' }
+    : {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(data).toString()
+      };
+  const response = await fetch(url, options);
+  const payload = await response.json();
+  if (!payload.ok && payload.ok !== undefined) {
+    throw new Error(payload.error || 'Не удалось выполнить операцию');
+  }
+  return payload;
+}
+
+function render(state) {
+  const min = state.minExperience;
+  const count = state.selectedCount;
+
+  els.yearLabel.textContent = 'Расчётный год: ' + state.currentYear;
+
+  els.summary.innerHTML = count === 0
+    ? 'Сотрудников со стажем более <b>' + min + '</b> ' + limitWord(min) + ' не найдено.'
+    : 'Найдено <b>' + count + '</b> из ' + state.workers.length +
+      ' — стаж более <b>' + min + '</b> ' + limitWord(min) + '.';
+
+  if (state.workers.length === 0) {
+    els.rows.innerHTML = '<tr><td colspan="6" class="empty">Список пуст. Добавьте сотрудника или загрузите демо-набор.</td></tr>';
+    return;
+  }
+
+  els.rows.innerHTML = state.workers.map((worker, index) => {
+    const hit = worker.selected ? ' class="hit"' : '';
+    const badge = worker.selected ? 'badge hit' : 'badge';
+    return '<tr' + hit + '>' +
+      '<td>' + esc(worker.name) + '</td>' +
+      '<td>' + esc(worker.position) + '</td>' +
+      '<td class="num">' + esc(worker.salary) + '</td>' +
+      '<td class="num">' + worker.hireYear + '</td>' +
+      '<td class="num"><span class="' + badge + '">' + worker.experience + '</span></td>' +
+      '<td class="num"><button class="del" data-index="' + index + '" title="Удалить">×</button></td>' +
+      '</tr>';
+  }).join('');
+}
+
+async function refresh() {
+  try {
+    const state = await call('/api/state?min=' + encodeURIComponent(els.min.value || '0'));
+    render(state);
+  } catch (error) {
+    toast(error.message);
+  }
+}
+
+els.form.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  try {
+    await call('/api/workers', {
+      name: els.name.value.trim(),
+      position: els.position.value.trim(),
+      salary: els.salary.value,
+      hireYear: els.hireYear.value
+    });
+    els.name.value = '';
+    els.position.value = '';
+    els.salary.value = '';
+    els.name.focus();
+    await refresh();
+  } catch (error) {
+    toast(error.message);
+  }
+});
+
+els.rows.addEventListener('click', async (event) => {
+  const button = event.target.closest('.del');
+  if (!button) return;
+  try {
+    await call('/api/workers/delete', { index: button.dataset.index });
+    await refresh();
+  } catch (error) {
+    toast(error.message);
+  }
+});
+
+document.getElementById('demo').addEventListener('click', async () => {
+  await call('/api/demo', {});
+  await refresh();
+});
+
+document.getElementById('clear').addEventListener('click', async () => {
+  await call('/api/clear', {});
+  await refresh();
+});
+
+let minTimer = null;
+els.min.addEventListener('input', () => {
+  clearTimeout(minTimer);
+  minTimer = setTimeout(refresh, 180);
+});
+
+(async function init() {
+  els.hireYear.value = new Date().getFullYear();
+
+  const saved = localStorage.getItem('worker.min');
+  if (saved !== null) els.min.value = saved;
+  els.min.addEventListener('input', () => localStorage.setItem('worker.min', els.min.value));
+
+  await refresh();
+
+  // Демо-набор подставляется только при самом первом открытии, чтобы
+  // после кнопки «Очистить» список оставался пустым.
+  if (!localStorage.getItem('worker.seeded')) {
+    localStorage.setItem('worker.seeded', '1');
+    try {
+      const state = await call('/api/state?min=' + encodeURIComponent(els.min.value || '0'));
+      if (state.workers.length === 0) {
+        await call('/api/demo', {});
+        await refresh();
+      }
+    } catch (error) {
+      toast(error.message);
+    }
+  }
+})();
+</script>
+</body>
+</html>

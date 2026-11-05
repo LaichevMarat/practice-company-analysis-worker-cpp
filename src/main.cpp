@@ -232,21 +232,6 @@ WorkerList loadFromFile(const std::string& path) {
     return workers;
 }
 
-/// Демонстрационный набор данных, адаптированный под профильное
-/// подразделение организации: должности соответствуют штатному
-/// расписанию вуза (преподаватели и ИТ-специалисты).
-WorkerList makeDemoWorkers() {
-    WorkerList workers;
-    workers.push_back(Worker("Смирнов Д.А.", "Заведующий кафедрой", 180000.0, 2015));
-    workers.push_back(Worker("Петрова А.С.", "Доцент", 120000.0, 2017));
-    workers.push_back(Worker("Иванов И.И.", "Старший преподаватель", 95000.0, 2021));
-    workers.push_back(
-        Worker("Кузнецова Е.В.", "Инженер-программист", 110000.0, 2023));
-    workers.push_back(Worker("Сидоров П.П.", "Специалист технической поддержки",
-                             70000.0, 2025));
-    return workers;
-}
-
 void printResult(const WorkerList& workers, int minYears, int currentYear) {
     std::cout << "Всего сотрудников в списке: " << workers.size() << '\n';
 
@@ -330,7 +315,7 @@ int main(int argc, char* argv[]) {
         const bool batchMode = options.demo || !options.file.empty();
 
         if (options.demo) {
-            workers = makeDemoWorkers();
+            workers = practice::makeDemoWorkers();
         } else if (!options.file.empty()) {
             workers = loadFromFile(options.file);
         } else {

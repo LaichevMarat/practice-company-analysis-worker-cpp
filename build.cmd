@@ -12,15 +12,21 @@ if errorlevel 1 (
 
 if not exist build mkdir build
 
-echo [1/2] Building worker_app.exe ...
+echo [1/3] Building worker_app.exe ...
 g++ -std=c++17 -Wall -Wextra -Wpedantic -O2 -Iinclude ^
     src\worker.cpp src\main.cpp -o build\worker_app.exe
 if errorlevel 1 exit /b 1
 
-echo [2/2] Building worker_tests.exe ...
+echo [2/3] Building worker_tests.exe ...
 g++ -std=c++17 -Wall -Wextra -Wpedantic -O2 -Iinclude -Itests ^
     src\worker.cpp tests\test_worker.cpp -o build\worker_tests.exe
 if errorlevel 1 exit /b 1
 
-echo Build finished: build\worker_app.exe, build\worker_tests.exe
+echo [3/3] Building worker_server.exe ...
+g++ -std=c++17 -Wall -Wextra -Wpedantic -O2 -Iinclude -pthread ^
+    src\worker.cpp src\server.cpp -o build\worker_server.exe ^
+    -lws2_32 -lshell32
+if errorlevel 1 exit /b 1
+
+echo Build finished: build\worker_app.exe, build\worker_tests.exe, build\worker_server.exe
 endlocal

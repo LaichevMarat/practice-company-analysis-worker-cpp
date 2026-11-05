@@ -248,4 +248,12 @@ TF_TEST("selectByMinExperience на пустом списке возвращае
     TF_CHECK(selected.empty());
 }
 
+TF_TEST("Демонстрационный набор содержит пять сотрудников") {
+    const auto demo = practice::makeDemoWorkers();
+    TF_CHECK_EQ(demo.size(), static_cast<std::size_t>(5));
+
+    const auto selected = selectByMinExperience(demo, 3, 2026);
+    TF_CHECK_EQ(selected.size(), static_cast<std::size_t>(3));
+}
+
 int main() { return tf::runAll(std::cout); }
